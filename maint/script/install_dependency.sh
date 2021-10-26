@@ -9,7 +9,7 @@ autoconf automake libtool ca-certificates gdb sqlite3 libsqlite3-dev libcurl4-op
 protobuf-compiler libgflags-dev libgtest-dev"
 
 if [[ "$(whoami)" != "root" ]]; then
-    SUDO=sudo
+	SUDO=sudo
 fi
 
 ubuntu_codename=$(. /etc/os-release;echo $UBUNTU_CODENAME)
@@ -20,32 +20,32 @@ if ! dpkg -L $DEB_PACKAGES >/dev/null 2>&1; then
 	$SUDO sh -c "wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null"
 	$SUDO sh -c "apt-add-repository 'deb https://apt.kitware.com/ubuntu/ $ubuntu_codename main'"
 	$SUDO sh -c "apt update && apt install -y --no-install-recommends $DEB_PACKAGES"
+
+	# Install protobuf 3.6.1 from source
+	$SUDO sh -c "wget https://github.com/protocolbuffers/protobuf/releases/download/v3.6.1/protobuf-cpp-3.6.1.tar.gz -P /tmp"
+	$SUDO sh -c "cd /tmp && tar -xf /tmp/protobuf-cpp-3.6.1.tar.gz && rm /tmp/protobuf-cpp-3.6.1.tar.gz"
+	$SUDO sh -c "cd /tmp/protobuf-3.6.1/ && ./configure && make && make check && make install && ldconfig && rm -rf /tmp/protobuf-3.6.1/"
 fi
 echo "- Dependencies are installed in system."
 
-
-# if Ubuntu 16.04, we have some dev node using ubuntu 16.04
-if [[ $ubuntu_codename == "xenial" ]]; then
-    echo "- Ubuntu 16.04 detected. Download & install protobuf 3.6.1 & gtest debs."
-
-    # Install protobuf 3.6.1
-    $SUDO sh -c "wget https://github.com/protocolbuffers/protobuf/releases/download/v3.6.1/protobuf-cpp-3.6.1.tar.gz -P /tmp"
-    $SUDO sh -c "cd /tmp && tar -xf /tmp/protobuf-cpp-3.6.1.tar.gz && rm /tmp/protobuf-cpp-3.6.1.tar.gz"
-    $SUDO sh -c "cd /tmp/protobuf-3.6.1/ && ./configure && make && make check && make install && ldconfig && rm -rf /tmp/protobuf-3.6.1/"
-
-    # Compile gtest
-    $SUDO sh -c "cd /usr/src/gtest && mkdir -p  build && cd build && cmake .. -DCMAKE_CXX_FLAGS=\"-std=c++11\" && make -j"
-    $SUDO sh -c "cp /usr/src/gtest/build/libgtest*.a /usr/lib/"
-    $SUDO sh -c "rm -rf /usr/src/gtest/build"
-fi
-
 if [ ! -f "/usr/lib/libgtest.a" ]; then
-    $SUDO sh -c "cd /usr/src/googletest/googletest && mkdir -p build && cd build && cmake .. -DCMAKE_CXX_FLAGS=\"-std=c++11\" && make -j"
-    $SUDO sh -c "cp /usr/src/googletest/googletest/build/lib/libgtest* /usr/lib/"
-    $SUDO sh -c "rm -rf /usr/src/googletest/googletest/build"
-    $SUDO sh -c "mkdir /usr/local/lib/googletest"
-    $SUDO sh -c "ln -s /usr/lib/libgtest.a /usr/local/lib/googletest/libgtest.a"
-    $SUDO sh -c "ln -s /usr/lib/libgtest_main.a /usr/local/lib/googletest/libgtest_main.a"
+
+	# if Ubuntu 16.04, we have some dev node using ubuntu 16.04
+	if [[ $ubuntu_codename == "xenial" ]]; then
+		gtest_src_path="/usr/src/gtest"
+	else
+		gtest_src_path="/usr/src/googletest/googletest"
+	fi
+
+	# Compile gtest
+	$SUDO sh -c "cd ${gtest_src_path} && mkdir -p  build && cd build && cmake .. -DCMAKE_CXX_FLAGS=\"-std=c++11\" && make -j"
+	$SUDO sh -c "cp ${gtest_src_path}/build/libgtest*.a /usr/lib/"
+	$SUDO sh -c "rm -rf ${gtest_src_path}/build"
+	$SUDO sh -c "rm -rf /usr/src/googletest/googletest/build"
+
+	$SUDO sh -c "mkdir /usr/local/lib/googletest"
+	$SUDO sh -c "ln -s /usr/lib/libgtest.a /usr/local/lib/googletest/libgtest.a"
+	$SUDO sh -c "ln -s /usr/lib/libgtest_main.a /usr/local/lib/googletest/libgtest_main.a"
 fi
 echo "- libgtest is installed in system."
 

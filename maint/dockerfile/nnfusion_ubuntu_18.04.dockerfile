@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-FROM nvidia/cuda:11.3.1-cudnn8-devel-ubuntu16.04
+FROM ubuntu:18.04
 RUN apt update && apt install -y git
 # FIXME
 # RUN git clone https://github.com/microsoft/nnfusion.git /root/nnfusion --branch master --single-branch
