@@ -5,7 +5,7 @@ FROM ubuntu:18.04
 RUN apt update && apt install -y git
 # FIXME
 # RUN git clone https://github.com/microsoft/nnfusion.git /root/nnfusion --branch master --single-branch
-RUN git clone https://github.com/siahuat0727/nnfusion.git /root/nnfusion --branch siahuat0727/update-dependency --single-branch
+RUN git clone https://github.com/siahuat0727/nnfusion.git /root/nnfusion --branch siahuat0727/update-16.04-dependency --single-branch
 # - Install Requirements
 RUN bash /root/nnfusion/maint/script/install_dependency.sh
 # - Make Install
