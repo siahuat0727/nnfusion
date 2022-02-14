@@ -1,6 +1,9 @@
-import nnfusion
+import functools
+
 import pytest
 import torch
+
+import nnfusion
 
 
 def assert_allclose(output1, output2, rtol=1e-5, atol=1e-8):
@@ -86,3 +89,14 @@ def test_repeat(step):
 
     t = [torch.randn(8, device="cuda") for _ in range(2)]
     compare_torch_and_nrt(func, *t, step=step, run=run)
+
+
+def test_keep_signature_but_change_compute_graph():
+    def func(t):
+        return t + t
+    t = torch.randn(8, device="cuda")
+    compare_torch_and_nrt(func, t)
+
+    def func(t):
+        return t * t
+    compare_torch_and_nrt(func, t)
