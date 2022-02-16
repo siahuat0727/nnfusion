@@ -2,17 +2,20 @@
 # Licensed under the MIT License.
 
 from __future__ import print_function
-import os
+
 import copy
-import tempfile
-import torch
 import json
 import logging
-from .dtypes import str2type
-from .utils import cd, execute
-from .executor import Executor
-from .description import IODescription, ModelDescription
+import os
+import tempfile
+
+import torch
+
 from .data_format import cast_pytorch_tensor
+from .description import IODescription, ModelDescription
+from .dtypes import str2type
+from .executor import Executor
+from .utils import cd, execute
 
 logger = logging.getLogger(__name__)
 
@@ -85,6 +88,7 @@ def codegen(model_path, flags, output_dir):
     model_path = os.path.abspath(model_path)
     with cd(output_dir):
         command = "{} {} {}".format("nnfusion", model_path, flags)
+        print(command)
         execute(command)
 
 
@@ -134,7 +138,7 @@ class PTSession(object):
             model_format: Intermedia model format, currently only support "onnx".
             const_folding: Do constant folding when converting model to onnx
             build_nnf: build nnf
-            codegen_flags: NNFusion codegen flags, 
+            codegen_flags: NNFusion codegen flags,
                 ref: https://github.com/microsoft/nnfusion/wiki/4.3-NNFusion-CLI-Interface#cli-flags
         """
         self._model = model
@@ -273,7 +277,7 @@ class PTSession(object):
         Parameters:
             feed_data: a dict from name to PyTorch tensors, name should be presented in input desc.
             check_nan: check weight nan after forward
-        
+
         Returns:
             a list of PyTorch tensors executed by NNFusion,
             they should be the same as origin PyTorch model forward results.

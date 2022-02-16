@@ -1,5 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
+import torch
+
 
 class IODescription(object):
     """ A hashable description for NNFusion model input/output.
@@ -49,6 +51,7 @@ class IODescription(object):
 
     def __ne__(self, other):
         return not (self == other)
+
 
 
 class ModelDescription(object):

@@ -1,7 +1,7 @@
-import nnfusion
 import pytest
 import torch
 
+import nnfusion
 
 
 def assert_allclose(output1, output2, rtol=1e-5, atol=1e-8):
@@ -94,7 +94,26 @@ def test_keep_signature_but_change_compute_graph():
         return t + t
     t = torch.randn(8, device="cuda")
     compare_torch_and_nrt(func, t)
+    compare_torch_and_nrt(func, t)
 
     def func(t):
         return t * t
+    import os
+    err = os.system('rm ~/.cache/nnfusion -rf')
+    assert not err
     compare_torch_and_nrt(func, t)
+
+
+def test_variable_input_size():
+    @nnfusion.jit
+    def func(t):
+        return t + t
+    t = torch.randn(8, device="cuda")
+
+    res_torch = t + t
+    res_nrt = torch.cat([
+        func(t[:2].clone()),
+        func(t[2:6].clone()),
+        func(t[6:].clone()),
+    ])
+    assert_allclose(res_torch, res_nrt)

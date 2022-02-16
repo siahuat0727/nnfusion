@@ -1,13 +1,14 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+import ctypes
+import json
 import os
 import platform
-import json
-import ctypes
+
 from . import dtypes
-from .utils import cd
 from .description import IODescription
+from .utils import cd
 
 
 def find_nnf_rt(nnf_rt_dir):
@@ -170,6 +171,10 @@ class Executor(object):
     def __call__(self, *args, **kwargs):
         # self.feed_tensors(*args, **kwargs)
         self.feed_data(*args, **kwargs)
+
+    def run(self, inputs, output_descs):
+        pass
+
 
     def feed_data(self, inputs, outputs, strict=True):
         """
