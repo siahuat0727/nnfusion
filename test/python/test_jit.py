@@ -72,8 +72,6 @@ def test_single_input_multi_identical_output():
 
 def test_module_no_grad():
     model = torch.nn.Linear(8, 8).cuda().eval()
-    for param in model.parameters():
-        param.requires_grad = False
     t = torch.randn(1, 8, device="cuda")
     compare_torch_and_nrt(model, t)
 
@@ -113,3 +111,18 @@ def test_keep_signature_but_change_compute_graph():
     def func(t):
         return t * t
     compare_torch_and_nrt(func, t)
+
+
+def test_jit_kwargs():
+
+    def func(t):
+        return t * t
+    t = torch.randn(8, device="cuda")
+    result_torch = func(t)
+
+    @nnfusion.jit(steps=10)
+    def func(t):
+        return t * t
+
+    result_nrt = func(t)
+    assert_allclose(result_torch, result_nrt)
